@@ -5,6 +5,7 @@ import Island from "../models/Island";
 import Sky from "../models/Sky";
 import Bird from "../models/Bird";
 import Plane from "../models/Plane";
+import HomeInfo from "../Components/HomeInfo.jsx";
 
 
 const Home = () => {
@@ -44,9 +45,9 @@ const Home = () => {
 
   return (
     <section className="w-full h-screen relative">
-      {/* <div className="flex items-center justify-center absolute top-28 left-0 right-0 z-10">
-          Popup
-      </div> */}
+      <div className="flex items-center justify-center absolute top-28 left-0 right-0 z-10">
+        { currentStage && <HomeInfo currentStage={currentStage} />}
+      </div>
 
       <Canvas className={`w-full h-screen bg-transparent ${isRotating ? 'cursor-grabbing' : 'cursor-grab'}`}
         camera={{ near: 0.1, far: 1000 }}
