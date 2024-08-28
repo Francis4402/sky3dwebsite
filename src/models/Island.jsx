@@ -60,13 +60,13 @@ const Island = ({isRotating, setIsRotating, setCurrentStage,
       if (e.key === "ArrowLeft") {
         if (!isRotating) setIsRotating(true);
   
-        islandRef.current.rotation.y += 0.005 * Math.PI;
-        rotationSpeed.current = 0.007;
+        islandRef.current.rotation.y += 0.01 * Math.PI;
+        rotationSpeed.current = 0.0125;
       } else if (e.key === "ArrowRight") {
         if (!isRotating) setIsRotating(true);
   
-        islandRef.current.rotation.y -= 0.005 * Math.PI;
-        rotationSpeed.current = -0.007;
+        islandRef.current.rotation.y -= 0.01 * Math.PI;
+        rotationSpeed.current = -0.0125;
       }
     };
 
@@ -85,26 +85,46 @@ const Island = ({isRotating, setIsRotating, setCurrentStage,
       lastX.current = clientX;
     }
 
+    const handleTouchEnd = (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      setIsRotating(false);
+    }
+    
+    const handleTouchMove = (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+    
+      if (isRotating) {
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const delta = (clientX - lastX.current) / viewport.width;
+    
+        islandRef.current.rotation.y += delta * 0.01 * Math.PI;
+        lastX.current = clientX;
+        rotationSpeed.current = delta * 0.01 * Math.PI;
+      }
+    }
+
     useFrame(() => {
-      // If not rotating, apply damping to slow down the rotation (smoothly)
+      
       if (!isRotating) {
-        // Apply damping factor
+
         rotationSpeed.current *= dampingFactor;
   
-        // Stop rotation when speed is very small
+
         if (Math.abs(rotationSpeed.current) < 0.001) {
           rotationSpeed.current = 0;
         }
   
         islandRef.current.rotation.y += rotationSpeed.current;
       } else {
-        // When rotating, determine the current stage based on island's orientation
+       
         const rotation = islandRef.current.rotation.y;
 
         const normalizedRotation =
           ((rotation % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
   
-        // Set the current stage based on the island's orientation
+        
         switch (true) {
           case normalizedRotation >= 5.45 && normalizedRotation <= 5.85:
             setCurrentStage(4);
@@ -126,19 +146,25 @@ const Island = ({isRotating, setIsRotating, setCurrentStage,
 
     useEffect(() => {
       const canvas = gl.domElement;
-      canvas.addEventListener('pointerdown', handlePointerDown);
-      canvas.addEventListener('pointerup', handlePointerUp);
-      canvas.addEventListener('pointermove', handlePointerMove);
-      document.addEventListener('keydown', handleKeyDown);
-      document.addEventListener('keyup', handleKeyUp);
+      canvas.addEventListener("pointerdown", handlePointerDown);
+      canvas.addEventListener("pointerup", handlePointerUp);
+      canvas.addEventListener("pointermove", handlePointerMove);
+      window.addEventListener("keydown", handleKeyDown);
+      window.addEventListener("keyup", handleKeyUp);
+      canvas.addEventListener("touchstart", handleTouchStart);
+      canvas.addEventListener("touchend", handleTouchEnd);
+      canvas.addEventListener("touchmove", handleTouchMove);
 
 
       return () => {
-        canvas.removeEventListener('pointerdown', handlePointerDown);
-        canvas.removeEventListener('pointerup', handlePointerUp);
-        canvas.removeEventListener('pointermove', handlePointerMove);
-        document.addEventListener('keydown', handleKeyDown);
-        document.addEventListener('keyup', handleKeyUp);
+        canvas.removeEventListener("pointerdown", handlePointerDown);
+        canvas.removeEventListener("pointerup", handlePointerUp);
+        canvas.removeEventListener("pointermove", handlePointerMove);
+        window.removeEventListener("keydown", handleKeyDown);
+        window.removeEventListener("keyup", handleKeyUp);
+        canvas.removeEventListener("touchstart", handleTouchStart);
+        canvas.removeEventListener("touchend", handleTouchEnd);
+        canvas.removeEventListener("touchmove", handleTouchMove);
       }
     }, [gl, handlePointerDown, handlePointerUp, handlePointerMove]);
 

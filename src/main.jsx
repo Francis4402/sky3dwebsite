@@ -8,6 +8,8 @@ import About from './pages/About.jsx'
 import Projects from './pages/Projects.jsx'
 import Contact from './pages/Contact.jsx'
 import { Toaster } from 'react-hot-toast'
+import 'react-lazy-load-image-component/src/effects/blur.css';
+import 'react-vertical-timeline-component/style.min.css';
 
 const routes = createBrowserRouter([
   {
